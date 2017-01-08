@@ -144,7 +144,6 @@
 
         this.responses.push(response)
         this.promptActive = true
-        this.$refs.terminal.scrollTop = this.$refs.terminal.scrollHeight
       }
     }
   }
