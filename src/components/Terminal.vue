@@ -76,7 +76,7 @@
                 name: child.name,
                 score: child.score,
                 media_type: child.post_hint,
-                created: child.created,
+                created_utc: child.created_utc,
                 title: child.title,
                 permalink: child.permalink,
                 url: child.url

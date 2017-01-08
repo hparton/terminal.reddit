@@ -1,7 +1,7 @@
 <template>
   <div class="thread">
     <h1>{{body.title}}</h1>
-    <p><span class="score">▲</span> {{body.score}} | submitted by {{body.author}}</p>
+    <p><span class="score--positive">▲</span> {{body.score}} | submitted by {{body.author}} | {{body.created_utc | UNIXtimeAgo }}</p>
     <div v-if="body.selftext">
       <p>{{body.selftext}}</p>
     </div>
@@ -43,8 +43,12 @@ export default {
 </script>
 
 <style>
-  .score {
+  .score--positive {
     color: #a3be8c;
+  }
+
+  .score--negative {
+    color:  #bf616a;
   }
 
   .thread-comments {

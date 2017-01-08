@@ -46,6 +46,7 @@ export default {
       window.addEventListener('keydown', this.focusInput)
 
       bus.$on('typeCommand', function (str) {
+        self.command = ''
         self.typeCommand(str)
       })
     }

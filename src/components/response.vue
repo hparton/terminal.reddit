@@ -18,7 +18,7 @@
           <span v-if="row.media_type === 'rich:video'">VIDEO </span>
           <span v-if="row.media_type == null">THREAD</span>
         </td>
-        <td>{{ row.created }}</td>
+        <td>{{ row.created_utc | UNIXcalendarDate }}</td>
         <td><a v-bind:href="row.url" @click.prevent="view('view ' + row.id)" target="_blank">{{ row.title }}</a></td>
       </tr >
     </table>

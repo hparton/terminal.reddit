@@ -1,6 +1,12 @@
 <template>
   <li class="comment">
-    <span class="comment-author">{{comment.author}} - {{comment.created}}</span>
+    <div>
+      <span class="comment-author">{{comment.author}}</span> -
+      <span class="comment-score">
+        <span v-if="comment.score >= 0" class="score--positive">▲</span><span v-else class="score--negative">▼</span> {{comment.score}}
+      </span>
+      - <span class="comment-created">{{comment.created_utc | UNIXtimeAgo }}</span>
+    </div>
     <div class="comment-body" v-html="marked"></div>
     <ul class="comment-kids" v-if="comment.replies">
       <comment
@@ -55,5 +61,11 @@ export default {
     margin-bottom: -0.55em;
     display: block;
     color: #d08770;
+  }
+
+  .comment-author,
+  .comment-score,
+  .comment-created {
+    display:  inline-block;
   }
 </style>
