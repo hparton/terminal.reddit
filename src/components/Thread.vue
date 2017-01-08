@@ -41,3 +41,13 @@ export default {
   }
 }
 </script>
+
+<style>
+  .score {
+    color: #a3be8c;
+  }
+
+  .thread-comments {
+    padding-left: 0;
+  }
+</style>

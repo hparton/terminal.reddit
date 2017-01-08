@@ -45,10 +45,11 @@ export default {
     max-width: 100%;
     border-collapse: collapse;
     border-spacing: 0;
+    margin: 11px 0;
   }
 
   td {
-    padding: 0 10px;
+    padding: 1px 10px;
   }
 
   td:first-child {

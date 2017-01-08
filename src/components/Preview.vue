@@ -72,18 +72,4 @@ export default {
     height: auto;
     display: block;
   }
-
-  .score {
-    color: #a3be8c;
-  }
-
-  .comment {
-    border-left: 2px solid white;
-    padding-left: 10px;
-    line-height: 1.4;
-  }
-
-  .comment{
-    margin-top: 1rem;
-  }
 </style>
