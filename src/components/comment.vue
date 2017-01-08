@@ -1,7 +1,6 @@
-<!-- That comment for loop could do with some improvements, it works but its kind of confusing to get your head around -->
-
 <template>
   <li class="comment">
+    <span class="comment-author">{{comment.author}} - {{comment.created}}</span>
     <div class="comment-body" v-html="marked"></div>
     <ul class="comment-kids" v-if="comment.replies">
       <comment
@@ -20,11 +19,6 @@ import snuownd from 'snuownd'
 export default {
   name: 'comment',
   props: ['comment', 'depth'],
-  created () {
-    // if (this.depth === 1) {
-    //   console.log(this.comment)
-    // }
-  },
   computed: {
     marked: function () {
       return snuownd.getParser().render(this.comment.body)
@@ -34,7 +28,32 @@ export default {
 </script>
 
 <style>
-  .comment-kids .comment-kids {
+
+  .comment-body {
+    border-left: 2px solid white;
+    padding-left: 10px;
+    line-height: 1.4;
+  }
+
+  .comment {
+    margin-top: 1rem;
+  }
+
+  .comment a {
+    color: inherit;
+  }
+
+  .comment-kids {
       margin-left: 1.5em;
+  }
+
+  .comment-kids {
+    padding-left: 0;
+  }
+
+  .comment-author {
+    margin-bottom: -0.55em;
+    display: block;
+    color: #d08770;
   }
 </style>
