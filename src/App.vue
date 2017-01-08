@@ -1,33 +1,47 @@
 <template>
-  <div class="app">
+  <div class="app" id="app">
     <loading v-on:loaded="showTerminal"></loading>
-    <terminal v-if="loaded"></terminal>
+    <terminal v-if="terminalVisible"></terminal>
+    <preview v-if="preview" :type="preview.type" :content="preview.data"></preview>
   </div>
 </template>
 
 <script>
 import Loading from './components/Loading'
 import Terminal from './components/Terminal'
+import Preview from './components/Preview'
+import {bus} from './main'
 
 export default {
-  name: 'hello',
+  name: 'app',
   components: {
     Loading,
-    Terminal
+    Terminal,
+    Preview
   },
   data () {
     return {
-      title: '',
-      comments: [],
-      loaded: false
+      terminalVisible: false,
+      preview: false
     }
   },
   created () {
+    var self = this
+    bus.$on('showPreview', function (payload) {
+      self.showPreview(payload)
+    })
 
+    bus.$on('closePreview', function () {
+      self.preview = false
+    })
   },
   methods: {
+    showPreview: function (payload) {
+      this.preview = payload
+      this.previewVisible = true
+    },
     showTerminal: function () {
-      this.loaded = true
+      this.terminalVisible = true
     }
   }
 }
@@ -43,12 +57,15 @@ export default {
 
 html {
   font-family: 'SourceCodePro';
+  color: #c0c5ce;
+  font-size: 14px;
+  line-height: 1.42857143em;
 }
 
 .app {
   display: flex;
   height: 100vh;
-  background: #2e2f2f;
+  background: #2b303b;
   justify-content: center;
   align-items: center;
 }
