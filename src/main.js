@@ -3,8 +3,6 @@
 import Vue from 'vue'
 import App from './App'
 
-export const bus = new Vue()
-
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

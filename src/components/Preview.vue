@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import {bus} from '../main'
+import {bus} from '../bus'
 import Thread from './Thread'
 
 export default {

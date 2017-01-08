@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import {bus} from '../main'
+import {bus} from '../bus'
 
 export default {
   name: 'response',

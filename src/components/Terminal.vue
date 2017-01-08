@@ -16,7 +16,7 @@
   import prompt from './prompt'
   import response from './response'
   import axios from 'axios'
-  import {bus} from '../main'
+  import {bus} from '../bus'
 
   export default {
     name: 'terminal',

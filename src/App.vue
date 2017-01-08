@@ -10,7 +10,7 @@
 import Loading from './components/Loading'
 import Terminal from './components/Terminal'
 import Preview from './components/Preview'
-import {bus} from './main'
+import {bus} from './bus'
 
 export default {
   name: 'app',
