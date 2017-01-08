@@ -7,50 +7,23 @@
       </div>
     <!-- </div> -->
       <div v-else>
-        <h1>{{body.title}}</h1>
-        <p><span class="score">▲</span> {{body.score}} | submitted by {{body.author}}</p>
-        <div v-if="body.selftext">
-          <p>{{body.selftext}}</p>
-        </div>
-        <div v-if="comments.length" v-for="comment in comments" class="comment">
-          {{comment.data.body}}
-
-          <div v-if="comment.data.replies">
-            <div v-for="reply in comment.data.replies.data.children">
-              {{reply.data.body}}
-            </div >
-          </div >
-        </div>
+        <thread :content="content"></thread>
       </div>
   </div>
 </template>
 
 <script>
 import {bus} from '../main'
-import axios from 'axios'
+import Thread from './Thread'
 
 export default {
   props: ['type', 'content'],
-  data () {
-    return {
-      comments: []
-    }
-  },
-  computed: {
-    body: function () {
-      return this.content.data.children[0].data
-    }
+  components: {
+    Thread
   },
   created () {
     // console.log(this.content)
     window.addEventListener('keydown', this.keyListener, false)
-
-    var self = this
-    axios.get('https://www.reddit.com/r/' + this.content.data.children[0].data.subreddit + '/comments/' + this.content.data.children[0].data.id + '.json')
-      .then(function (response) {
-        console.log(response.data)
-        self.comments = response.data[1].data.children
-      })
   },
   destroyed () {
     window.removeEventListener('keydown', this.keyListener, false)
@@ -110,7 +83,7 @@ export default {
     line-height: 1.4;
   }
 
-  .comment + .comment {
+  .comment{
     margin-top: 1rem;
   }
 </style>

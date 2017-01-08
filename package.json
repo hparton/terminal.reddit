@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "axios": "^0.15.3",
+    "snuownd": "^1.1.0",
     "vue": "^2.1.0"
   },
   "devDependencies": {

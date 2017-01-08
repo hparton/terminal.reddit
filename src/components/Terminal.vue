@@ -113,7 +113,7 @@
           }
         } else if (arrayContains('motd', argv)) {
           this.createResponse('', 'message')
-          this.createResponse('<span class="sep">*=========================MOTD==========================*</span><p>Welcome to h4ck3r reddit, don\'t let your memes be dreams.</p><p>Type `<span class="yellow">help</span>` to get a list of commands</p><span class="sep">*=======================================================*</span>', 'message')
+          this.createResponse('<span class="sep">*==========================MOTD===========================*</span><p>Welcome to terminal reddit, don\'t let your memes be dreams.</p><p>Type `<span class="yellow">help</span>` to get a list of commands</p><span class="sep">*=========================================================*</span>', 'message')
           this.createResponse('', 'message')
         } else {
           this.createResponse('That command is not recognized', 'message')
