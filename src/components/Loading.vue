@@ -63,18 +63,17 @@ export default {
   data () {
     return {
       percentage: 0,
-      loaded: true
+      loaded: false
     }
   },
   created () {
     var self = this
-    self.$emit('loaded')
     setInterval(function () {
       if (self.percentage < 100) {
         self.percentage++
       } else if (!self.loaded) {
         self.loaded = true
-        // self.$emit('loaded')
+        self.$emit('loaded')
       }
     }, 20)
   },

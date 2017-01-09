@@ -1,27 +1,23 @@
 <template>
-<div class="terminal" ref="terminal">
-  <div v-for="item in responses" class="terminal-line">
-    <div v-if="item.type === 'command'">
-      <prompt :active="false" :text="item.text" :directory="item.directory"></prompt>
+  <div class="terminal" ref="terminal">
+    <div v-for="item in responses" class="terminal-line">
+        <prompt v-if="item.type === 'command'" :active="false" :text="item.text" :directory="item.directory"></prompt>
+        <response v-else :content="item.content" :type="item.type"></response>
     </div>
-    <div v-else>
-      <response :content="item.content" :type="item.type"></response>
-    </div>
-  </div >
-  <prompt :active="true" :visible="promptActive" v-on:emitCommand="saveCommand" :history="commands" :directory="currentSub"></prompt>
-</div>
+    <prompt :active="true" :visible="promptActive" v-on:emitCommand="saveCommand" :history="commands" :directory="currentSub"></prompt>
+  </div>
 </template>
 
 <script>
-  import prompt from './prompt'
-  import response from './response'
+  import Prompt from './Prompt'
+  import response from './responses/createResponse'
   import axios from 'axios'
   import {bus} from '../bus'
 
   export default {
     name: 'terminal',
     components: {
-      prompt,
+      Prompt,
       response
     },
     data () {
@@ -55,10 +51,8 @@
       runCommand: function (text) {
         var argv = text.split(' ')
 
-        if (arrayContains('help', argv)) {
-          this.createResponse('Help is on the way!', 'message')
-        } else if (arrayContains('hi', argv)) {
-          this.createResponse('Howdy', 'message')
+        if (arrayContains('hi', argv)) {
+          this.createResponse('message', 'Howdy')
         } else if (arrayContains('clear', argv)) {
           this.responses = []
           this.promptActive = true
@@ -70,7 +64,6 @@
             for (var i = 0; i < response.data.data.children.length; i++) {
               var child = response.data.data.children[i].data
               // ID, Score, Type, Date ?, Name,
-              console.log(child)
               var line = {
                 id: child.id,
                 name: child.name,
@@ -84,7 +77,7 @@
               output.push(line)
             }
             self.listings = output
-            self.createResponse(self.listings, 'list')
+            self.createResponse('list', self.listings)
           })
           .catch(function (error) {
             console.log(error)
@@ -94,9 +87,9 @@
             this.currentSub = argv[1]
             this.promptActive = true
           } else {
-            this.createResponse('Please specify a valid subreddit to move to', 'message')
+            this.createResponse('message', 'Please specify a valid subreddit to move to')
           }
-        } else if (arrayContains('view', argv)) {
+        } else if (arrayContains('comments', argv)) {
           if (argv[1]) {
             for (var i = 0; i < this.listings.length; i++) {
               if (this.listings[i].id === argv[1]) {
@@ -109,14 +102,14 @@
               }
             }
           } else {
-            this.createResponse('Please specify a valid post id to view', 'message')
+            this.createResponse('message', 'Please specify a valid post id to view')
           }
         } else if (arrayContains('motd', argv)) {
-          this.createResponse('', 'message')
-          this.createResponse('<span class="sep">*==========================MOTD===========================*</span><p>Welcome to terminal reddit, don\'t let your memes be dreams.</p><p>Type `<span class="yellow">help</span>` to get a list of commands</p><span class="sep">*=========================================================*</span>', 'message')
-          this.createResponse('', 'message')
+          this.createSpacedResponse('motd')
+        } else if (arrayContains('help', argv)) {
+          this.createSpacedResponse('help')
         } else {
-          this.createResponse('That command is not recognized', 'message')
+          this.createResponse('message', 'That command is not recognized')
         }
       },
       saveCommand: function (text) {
@@ -136,7 +129,12 @@
           self.runCommand(text)
         }, 20)
       },
-      createResponse: function (content, type) {
+      createSpacedResponse: function (type, content) {
+        this.createResponse('message', '')
+        this.createResponse(type, content)
+        this.createResponse('message', '')
+      },
+      createResponse: function (type, content) {
         let response = {
           type: type,
           content: content

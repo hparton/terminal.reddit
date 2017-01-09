@@ -1,13 +1,11 @@
 <template>
   <div class="preview">
-    <header><a href="#" @click.prevent="closePreview">← Go Back [ESC] Quit</a></header>
-    <!-- <div v-if="type === 'thread'"> -->
-      <div v-if="content.data.children[0].data.post_hint === 'image'">
-        <img ref="imageSource" v-bind:src="content.data.children[0].data.url">
-      </div>
-    <!-- </div> -->
+    <header><a href="#" @click.prevent="closePreview">← Quit [ESC]</a></header>
+      <thread v-if="type === 'thread'" :content="content"></thread>
       <div v-else>
-        <thread :content="content"></thread>
+        <div v-if="content.data.children[0].data.post_hint === 'image'">
+          <img ref="imageSource" v-bind:src="content.data.children[0].data.url">
+        </div>
       </div>
   </div>
 </template>

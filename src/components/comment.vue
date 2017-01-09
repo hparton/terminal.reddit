@@ -63,9 +63,15 @@ export default {
     color: #d08770;
   }
 
+  .comment-body ol {
+    list-style-type: decimal;
+  }
+
   .comment-author,
   .comment-score,
   .comment-created {
     display:  inline-block;
   }
+
+
 </style>
