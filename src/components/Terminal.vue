@@ -11,7 +11,9 @@
 <script>
   import Prompt from './Prompt'
   import response from './responses/createResponse'
+
   import axios from 'axios'
+
   import {bus} from '../bus'
 
   export default {
@@ -23,10 +25,15 @@
     data () {
       return {
         promptActive: true,
+        sort: 'hot',
         currentSub: 'all',
         responses: [],
         commands: [],
-        listings: []
+        listings: [],
+        pagination: {
+          last: false,
+          count: 25
+        }
       }
     },
     created () {
@@ -34,6 +41,8 @@
         bus.$emit('typeCommand', 'motd')
       }, 200)
       var self = this
+
+      this.registerCommands()
 
       bus.$on('closePreview', function () {
         self.promptActive = true
@@ -48,85 +57,108 @@
       }
     },
     methods: {
-      runCommand: function (text) {
-        var argv = text.split(' ')
+      parseCommand: function (string) {
+        var argv = string.split(/ +/)
+        var name = argv[0]
+        // take the name out of the args list
+        argv.shift()
 
-        if (arrayContains('hi', argv)) {
-          this.createResponse('message', 'Howdy')
-        } else if (arrayContains('clear', argv)) {
-          this.responses = []
-          this.promptActive = true
-        } else if (arrayContains('list', argv)) {
-          let self = this
-          axios.get('https://www.reddit.com/r/' + self.currentSub + '.json')
-          .then(function (response) {
-            var output = []
-            for (var i = 0; i < response.data.data.children.length; i++) {
-              var child = response.data.data.children[i].data
-              // ID, Score, Type, Date ?, Name,
-              var line = {
-                id: child.id,
-                name: child.name,
-                score: child.score,
-                media_type: child.post_hint,
-                created_utc: child.created_utc,
-                title: child.title,
-                permalink: child.permalink,
-                url: child.url
-              }
-              output.push(line)
-            }
-            self.listings = output
+        this.runCommand(name, argv)
+      },
+      registerCommands: function () {
+        var self = this
+
+        this.command('hi', function () {
+          self.createResponse('message', 'Howdy')
+        }, ['Say hello to the computer'])
+
+        this.command('motd', function () {
+          self.createSpacedResponse('motd')
+        }, ['Show the message of the day'])
+
+        this.command('help', function () {
+          self.createSpacedResponse('help')
+        }, ['Show the help function... which you have to know to view this.'])
+
+        this.command('clear', function () {
+          self.responses = []
+          self.promptActive = true
+        }, ['Clear the terminal of any responses'])
+
+        this.command('list', function (argv) {
+          self.getPosts().then(function (response) {
+            self.updateListings(response)
             self.createResponse('list', self.listings)
           })
-          .catch(function (error) {
-            console.log(error)
-          })
-        } else if (arrayContains('move', argv)) {
-          if (argv[1]) {
-            this.currentSub = argv[1]
-            this.promptActive = true
+        }, [`List the current ${self.pagination.count} posts in the current subreddit`])
+
+        this.command('more', function (argv) {
+          if (self.pagination.last) {
+            self.getPosts(self.pagination.last).then(function (response) {
+              self.updateListings(response)
+              self.createResponse('list', self.listings)
+            })
           } else {
-            this.createResponse('message', 'Please specify a valid subreddit to move to')
+            self.createResponse('message', 'You first need to grab some inital listings using `list`')
           }
-        } else if (arrayContains('comments', argv)) {
-          if (argv[1]) {
-            for (var i = 0; i < this.listings.length; i++) {
-              if (this.listings[i].id === argv[1]) {
-                var listing = this.listings[i]
-                axios.get('https://www.reddit.com/by_id/' + listing.name + '.json')
-                .then(function (response) {
-                  bus.$emit('showPreview', {data: response.data, type: 'thread'})
-                })
-                break
-              }
+        }, ['Get more posts from the same subreddit'])
+
+        this.command('move', function (argv) {
+          self.moveCurrentSub(argv[0])
+        }, ['Change subreddit'])
+
+        this.command('sort', function (argv) {
+          self.changeSortMode(argv[0])
+        }, ['Change subreddit sorting mode'])
+
+        this.command('limit', function (argv) {
+          self.setLimit(argv[0])
+        }, ['Limit the amount of returned posts'])
+
+        this.command('comments', function (argv) {
+          for (var i = 0; i < self.listings.length; i++) {
+            if (self.listings[i].id === argv[0]) {
+              var listing = self.listings[i]
+              self.getComments(listing.name)
+              .then(function (response) {
+                bus.$emit('showPreview', {data: response.data, type: 'thread'})
+              })
+              break
             }
-          } else {
-            this.createResponse('message', 'Please specify a valid post id to view')
           }
-        } else if (arrayContains('motd', argv)) {
-          this.createSpacedResponse('motd')
-        } else if (arrayContains('help', argv)) {
-          this.createSpacedResponse('help')
-        } else {
-          this.createResponse('message', 'That command is not recognized')
-        }
+        }, ['View the comments for a specific post'])
       },
-      saveCommand: function (text) {
+      command: function (name, func, help) {
+        this.commands.push({
+          name: name,
+          command: func,
+          help: help
+        })
+      },
+      runCommand: function (name, argv) {
+        for (var i = 0; i < this.commands.length; i++) {
+          if (this.commands[i].name === name) {
+            return this.commands[i].command(argv)
+          }
+        }
+
+        this.createResponse('message', 'That command is not recognized')
+      },
+      saveCommand: function (string) {
         this.promptActive = false
 
         let command = {
           type: 'command',
           directory: this.currentSub,
-          text: text
+          text: string
         }
 
         this.responses.push(command)
-        this.commands.push(command)
+        // this.commands.push(command)
 
         let self = this
         setTimeout(function () {
-          self.runCommand(text)
+          self.parseCommand(string)
         }, 20)
       },
       createSpacedResponse: function (type, content) {
@@ -142,12 +174,66 @@
 
         this.responses.push(response)
         this.promptActive = true
+      },
+      getPosts: function (after) {
+        return axios.get('https://www.reddit.com/r/' + this.currentSub + '/' + this.sort + '.json', {
+          params: {
+            after: after,
+            limit: this.pagination.count
+          }
+        })
+      },
+      getComments: function (name) {
+        return axios.get('https://www.reddit.com/by_id/' + name + '.json')
+      },
+      updateListings: function (response) {
+        var output = []
+        for (var i = 0; i < response.data.data.children.length; i++) {
+          var child = response.data.data.children[i].data
+          // ID, Score, Type, Date ?, Name,
+          var line = {
+            id: child.id,
+            name: child.name,
+            score: child.score,
+            media_type: child.post_hint,
+            created_utc: child.created_utc,
+            title: child.title,
+            permalink: child.permalink,
+            url: child.url
+          }
+          output.push(line)
+        }
+
+        this.pagination.last = response.data.data.children[response.data.data.children.length - 1].data.name
+        this.listings = output
+      },
+      changeSortMode: function (mode) {
+        if (mode === 'hot' || mode === 'new' || mode === 'rising' || mode === 'controversial' || mode === 'top') {
+          this.sort = mode
+          this.pagination.last = false
+          this.createResponse('message', `Now sorting by ${mode}`)
+        } else {
+          this.createResponse('message', 'Please specify a valid sorting mode (hot/new/controversial/rising/top)')
+        }
+      },
+      setLimit: function (count) {
+        if (count > 0 && count <= 100) {
+          this.pagination.count = count
+          this.createResponse('message', `Limit set to ${this.pagination.count}`)
+        } else {
+          this.createResponse('message', 'Limit has to be between 1 - 100')
+        }
+      },
+      moveCurrentSub: function (sub) {
+        if (sub) {
+          this.currentSub = sub
+          this.pagination.last = false
+          this.promptActive = true
+        } else {
+          this.createResponse('message', 'Please specify a valid subreddit to move to')
+        }
       }
     }
-  }
-
-  function arrayContains (needle, arrhaystack) {
-    return (arrhaystack.indexOf(needle) > -1)
   }
 </script>
 

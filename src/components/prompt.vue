@@ -27,10 +27,11 @@ import {bus} from '../bus'
 
 export default {
   name: 'prompt',
-  props: ['active', 'text', 'history', 'visible', 'directory'],
+  props: ['active', 'text', 'visible', 'directory'],
   data () {
     return {
       command: '',
+      history: [],
       typing: true,
       blinkyVisible: true,
       historyIndex: null
@@ -75,6 +76,7 @@ export default {
     },
     runCommand: function () {
       this.$emit('emitCommand', this.command)
+      this.history.push(this.command)
       this.historyIndex = null
       this.command = ''
     },
@@ -104,7 +106,7 @@ export default {
           this.historyIndex = this.history.length - 1
         }
 
-        this.command = this.history[(this.history.length - 1) - this.historyIndex].text
+        this.command = this.history[(this.history.length - 1) - this.historyIndex]
       }
     }
   }
