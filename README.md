@@ -1,6 +1,6 @@
-# hacker.hackernews
+# terminal.reddit
 
-> A Vue.js project
+> A web based terminal emulator for viewing reddit... hey its better than a todo example!
 
 ## Build Setup
 
