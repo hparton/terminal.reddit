@@ -68,12 +68,15 @@
     },
     methods: {
       parseCommand: function (string) {
-        var argv = string.split(/ +/)
-        var name = argv[0]
-        // take the name out of the args list
-        argv.shift()
+        var commands = string.split(' && ')
+        for (var i = 0; i < commands.length; i++) {
+          var argv = commands[i].split(/ +/)
+          var name = argv[0]
+          // take the name out of the args list
+          argv.shift()
 
-        this.runCommand(name, argv)
+          this.runCommand(name, argv)
+        }
       },
       registerCommands: function () {
         var self = this
