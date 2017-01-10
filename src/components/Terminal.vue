@@ -46,7 +46,6 @@
       this.registerCommands()
 
       this.getSubReddits().then(function (response) {
-        console.log(response.data.data.children)
         for (var i = 0; i < response.data.data.children.length; i++) {
           let child = response.data.data.children[i].data
           // Just doing a check to make sure we dont get that one.
