@@ -27,6 +27,7 @@
         promptActive: true,
         sort: 'hot',
         currentSub: 'all',
+        popularSubs: [],
         responses: [],
         commands: [],
         listings: [],
@@ -43,6 +44,15 @@
       var self = this
 
       this.registerCommands()
+
+      this.getSubReddits().then(function (response) {
+        console.log(response.data.data.children)
+        for (var i = 0; i < response.data.data.children.length; i++) {
+          let child = response.data.data.children[i].data
+          // Just doing a check to make sure we dont get that one.
+          if (child.url !== '/r/The_Donald/') self.popularSubs.push(child.url.slice(3, child.url.length - 1))
+        }
+      })
 
       bus.$on('closePreview', function () {
         self.promptActive = true
@@ -88,7 +98,7 @@
         this.command('list', function (argv) {
           self.getPosts().then(function (response) {
             self.updateListings(response)
-            self.createResponse('list', self.listings)
+            self.createResponse('list', self.latestListings)
           })
         }, [`List the current ${self.pagination.count} posts in the current subreddit`])
 
@@ -96,7 +106,7 @@
           if (self.pagination.last) {
             self.getPosts(self.pagination.last).then(function (response) {
               self.updateListings(response)
-              self.createResponse('list', self.listings)
+              self.createResponse('list', self.latestListings)
             })
           } else {
             self.createResponse('message', 'You first need to grab some inital listings using `list`')
@@ -105,7 +115,7 @@
 
         this.command('move', function (argv) {
           self.moveCurrentSub(argv[0])
-        }, ['Change subreddit', 'move <subreddit>'])
+        }, ['Change subreddit', 'move <subreddit/random>'])
 
         this.command('sort', function (argv) {
           self.changeSortMode(argv[0])
@@ -116,16 +126,10 @@
         }, ['Limit the amount of returned posts', 'limit <number>'])
 
         this.command('comments', function (argv) {
-          for (var i = 0; i < self.listings.length; i++) {
-            if (self.listings[i].id === argv[0]) {
-              var listing = self.listings[i]
-              self.getComments(listing.name)
-              .then(function (response) {
-                bus.$emit('showPreview', {data: response.data, type: 'thread'})
-              })
-              break
-            }
-          }
+          self.getComments('t3_' + argv[0])
+          .then(function (response) {
+            bus.$emit('showPreview', {data: response.data, type: 'thread'})
+          })
         }, ['View the comments for a specific post', 'comments <post-id>'])
       },
       command: function (name, func, help) {
@@ -154,7 +158,6 @@
         }
 
         this.responses.push(command)
-        // this.commands.push(command)
 
         let self = this
         setTimeout(function () {
@@ -186,6 +189,9 @@
       getComments: function (name) {
         return axios.get('https://www.reddit.com/by_id/' + name + '.json')
       },
+      getSubReddits: function () {
+        return axios.get('https://www.reddit.com/subreddits/popular.json')
+      },
       updateListings: function (response) {
         var output = []
         for (var i = 0; i < response.data.data.children.length; i++) {
@@ -205,7 +211,7 @@
         }
 
         this.pagination.last = response.data.data.children[response.data.data.children.length - 1].data.name
-        this.listings = output
+        this.latestListings = output
       },
       changeSortMode: function (mode) {
         if (mode === 'hot' || mode === 'new' || mode === 'rising' || mode === 'top') {
@@ -226,7 +232,12 @@
       },
       moveCurrentSub: function (sub) {
         if (sub) {
-          this.currentSub = sub
+          if (sub === 'random') {
+            this.currentSub = this.popularSubs[Math.floor(Math.random() * this.popularSubs.length)]
+          } else {
+            this.currentSub = sub
+          }
+
           this.pagination.last = false
           this.promptActive = true
         } else {
