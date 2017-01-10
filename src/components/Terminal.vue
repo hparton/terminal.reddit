@@ -4,7 +4,7 @@
         <prompt v-if="item.type === 'command'" :active="false" :text="item.text" :directory="item.directory"></prompt>
         <response v-else :content="item.content" :type="item.type"></response>
     </div>
-    <prompt :active="true" :visible="promptActive" v-on:emitCommand="saveCommand" :history="commands" :directory="currentSub"></prompt>
+    <prompt :active="true" :visible="promptActive" v-on:emitCommand="saveCommand" :directory="currentSub"></prompt>
   </div>
 </template>
 
@@ -77,7 +77,7 @@
         }, ['Show the message of the day'])
 
         this.command('help', function () {
-          self.createSpacedResponse('help', self.commands)
+          self.createResponse('help', self.commands)
         }, ['Show the help function... which you have to know to view this.'])
 
         this.command('clear', function () {
@@ -105,15 +105,15 @@
 
         this.command('move', function (argv) {
           self.moveCurrentSub(argv[0])
-        }, ['Change subreddit'])
+        }, ['Change subreddit', 'move <subreddit>'])
 
         this.command('sort', function (argv) {
           self.changeSortMode(argv[0])
-        }, ['Change subreddit sorting mode'])
+        }, ['Change subreddit sorting mode', 'sort <hot/new/rising/top>'])
 
         this.command('limit', function (argv) {
           self.setLimit(argv[0])
-        }, ['Limit the amount of returned posts'])
+        }, ['Limit the amount of returned posts', 'limit <number>'])
 
         this.command('comments', function (argv) {
           for (var i = 0; i < self.listings.length; i++) {
@@ -126,7 +126,7 @@
               break
             }
           }
-        }, ['View the comments for a specific post'])
+        }, ['View the comments for a specific post', 'comments <post-id>'])
       },
       command: function (name, func, help) {
         this.commands.push({
@@ -208,12 +208,12 @@
         this.listings = output
       },
       changeSortMode: function (mode) {
-        if (mode === 'hot' || mode === 'new' || mode === 'rising' || mode === 'controversial' || mode === 'top') {
+        if (mode === 'hot' || mode === 'new' || mode === 'rising' || mode === 'top') {
           this.sort = mode
           this.pagination.last = false
           this.createResponse('message', `Now sorting by ${mode}`)
         } else {
-          this.createResponse('message', 'Please specify a valid sorting mode (hot/new/controversial/rising/top)')
+          this.createResponse('message', 'Please specify a valid sorting mode (hot/new/rising/top)')
         }
       },
       setLimit: function (count) {
@@ -248,6 +248,12 @@ input {
 .terminal-line {
   min-height: 22px;
   max-width: 70%;
+}
+
+.terminal-line > * {
+  display: inline-block;
+  vertical-align: middle;
+  text-align: start;
 }
 
 .terminal {
