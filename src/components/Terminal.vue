@@ -77,7 +77,7 @@
         }, ['Show the message of the day'])
 
         this.command('help', function () {
-          self.createSpacedResponse('help')
+          self.createSpacedResponse('help', self.commands)
         }, ['Show the help function... which you have to know to view this.'])
 
         this.command('clear', function () {
