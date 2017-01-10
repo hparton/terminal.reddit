@@ -2,6 +2,8 @@
 
 > A web based terminal emulator for viewing reddit... hey its better than a todo example!
 
+Demo available [here](http://www.harryparton.co.uk/terminal)
+
 ## Build Setup
 
 ``` bash
