@@ -1,5 +1,5 @@
 <template>
-  <div class="prompt" v-if="active && visible || !active">
+  <div class="prompt" v-show="active && visible || !active">
     <span><span class="user">guest</span><span class="white">@</span><span class="location">reddit.sh</span>:<span class="directory">r/{{ directory }}/</span></span>
     <span v-if="!active">
       <span>{{ text }}</span>
@@ -15,7 +15,7 @@
         @keydown.down.prevent="cycleHistory(0)"
         v-on:typeCommand="typeCommand"
       >
-      <div class="input-display">
+      <div class="input-display" v-bind:class="{selected: selected}">
         {{ command }}<span class="blinky" v-bind:class="{ visible: blinkyVisible }">&nbsp;</span>
       </div>
     </div>
@@ -34,26 +34,28 @@ export default {
       history: [],
       typing: true,
       blinkyVisible: true,
+      selected: false,
       historyIndex: null
     }
   },
   created () {
     if (this.active) {
-      var self = this
-      setInterval(function () {
-        self.blinkyVisible = !self.blinkyVisible
-      }, 500)
+      this.$nextTick(function () {
+        this.toggleBlinky()
 
-      window.addEventListener('keydown', this.focusInput)
-
-      bus.$on('typeCommand', function (str) {
-        self.command = ''
-        self.typeCommand(str)
+        window.addEventListener('keydown', this.focusInput)
+        window.addEventListener('keydown', this.selectInput)
+        let self = this
+        bus.$on('typeCommand', function (str) {
+          self.command = ''
+          self.typeCommand(str)
+        })
       })
     }
   },
   destroyed () {
     window.removeEventListener('keydown', this.focusInput)
+    window.removeEventListener('keydown', this.selectInput)
   },
   methods: {
     typeCommand: function (str) {
@@ -84,6 +86,26 @@ export default {
       if (this.visible) {
         this.$refs.input.focus()
       }
+    },
+    selectInput: function (e) {
+      if (this.selected === false) {
+        if ((e.metaKey || e.ctrlKey) && (String.fromCharCode(e.which).toLowerCase() === 'a')) {
+          this.selected = true
+          this.blinky = true
+        }
+      } else if (!(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) {
+        this.selected = false
+      }
+    },
+    toggleBlinky: function () {
+      let self = this
+      setInterval(function () {
+        if (!self.selected) {
+          self.blinkyVisible = !self.blinkyVisible
+        } else {
+          self.blinkyVisible = true
+        }
+      }, 500)
     },
     cycleHistory: function (direction) {
       // No point looking if nothing exists.
@@ -128,11 +150,15 @@ export default {
   .blinky {
     background: white;
     display: inline-block;
-    visibility: hidden;
   }
 
   .blinky.visible {
-    visibility: visible;
+    display: none;
+  }
+
+  .input-display.selected {
+    color: black;
+    background: white;
   }
 
   .user {
