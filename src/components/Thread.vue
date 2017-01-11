@@ -2,7 +2,7 @@
   <div class="thread">
     <h1 class="thread__title">{{body.title}}</h1>
     <p><span class="score--positive">▲</span> {{body.score}} | submitted by {{body.author}} | {{body.created_utc | UNIXtimeAgo }}</p>
-    <div v-if="body.selftext" v-html="marked"></div>
+    <div class="thread__self-text" v-if="body.selftext" v-html="marked"></div>
     <ul class="thread__comments">
       <comment v-if="comments.length && comment.kind !== 'more'" v-for="comment in comments" :comment="comment.data" :depth="0"></comment>
     </ul>
@@ -67,6 +67,21 @@ export default {
 
   .thread h4 {
     font-size: 14px;
+  }
+
+  .thread__self-text ol,
+  .thread__self-text ul,
+  .comment ol,
+  .comment ul {
+    padding-left: 20px;
+  }
+
+  .thread ol {
+    list-style: decimal outside;
+  }
+
+  .thread ul {
+    list-style: disc outside;
   }
 
   .score--positive {
