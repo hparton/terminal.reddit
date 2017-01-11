@@ -134,8 +134,9 @@
             if (post.is_self) {
               bus.$emit('showPreview', {data: response.data, type: 'thread'})
             } else {
-              var popup = window.open(post.url)
+              var popup = window.open(post.url.replace(/&amp;/g, '&'))
 
+              // Check if the new window is created and send an error if it fails, otherwise it just silently fails and leaves the user confused.
               try {
                 popup.focus()
               } catch (e) {
@@ -235,7 +236,7 @@
             created_utc: child.created_utc,
             title: child.title,
             permalink: child.permalink,
-            url: child.url
+            url: child.url.replace(/&amp;/g, '&')
           }
           output.push(line)
         }
