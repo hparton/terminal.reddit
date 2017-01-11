@@ -136,6 +136,8 @@
             } else {
               window.open(post.url)
             }
+          }).catch(function () {
+            self.createResponse('message', 'Could not find a post with that id.')
           })
         }, ['View the link for a specific post (you must allow popups)', 'view <post-id>'])
 
@@ -143,6 +145,8 @@
           self.getPost('t3_' + argv[0])
           .then(function (response) {
             bus.$emit('showPreview', {data: response.data, type: 'thread'})
+          }).catch(function () {
+            self.createResponse('message', 'Could not find a post with that id.')
           })
         }, ['View the comments for a specific post', 'comments <post-id>'])
       },
@@ -206,6 +210,9 @@
       getSubReddits: function () {
         return axios.get('https://www.reddit.com/subreddits/popular.json')
       },
+      getSubReddit: function (sub) {
+        return axios.get('https://www.reddit.com/r/' + sub + '.json')
+      },
       updateListings: function (response) {
         var output = []
         for (var i = 0; i < response.data.data.children.length; i++) {
@@ -246,17 +253,18 @@
         }
       },
       moveCurrentSub: function (sub) {
-        if (sub) {
-          if (sub === 'random') {
-            this.currentSub = this.popularSubs[Math.floor(Math.random() * this.popularSubs.length)]
-          } else {
-            this.currentSub = sub
-          }
-
+        if (sub === 'random') {
+          this.currentSub = this.popularSubs[Math.floor(Math.random() * this.popularSubs.length)]
           this.pagination.last = false
           this.promptActive = true
         } else {
-          this.createResponse('message', 'Please specify a valid subreddit to move to')
+          this.getSubReddit(sub).then(() => {
+            this.currentSub = sub
+            this.pagination.last = false
+            this.promptActive = true
+          }).catch(() => {
+            this.createResponse('message', 'Please specify a valid subreddit to move to')
+          })
         }
       }
     }
