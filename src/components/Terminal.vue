@@ -134,7 +134,13 @@
             if (post.is_self) {
               bus.$emit('showPreview', {data: response.data, type: 'thread'})
             } else {
-              window.open(post.url)
+              var popup = window.open(post.url)
+
+              try {
+                popup.focus()
+              } catch (e) {
+                self.createResponse('message', 'You need to allow popups before the view command will work, there should be an icon in the far right of your URL Bar')
+              }
             }
 
             self.promptActive = true
@@ -294,7 +300,7 @@ input {
 
 .terminal {
   height: 100vh;
-  overflow-y: scroll;
+  overflow-y: auto;
   width: 100vw;
   padding: 15px;
   margin-right: auto;
