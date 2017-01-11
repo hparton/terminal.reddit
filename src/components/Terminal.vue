@@ -127,8 +127,20 @@
           self.setLimit(argv[0])
         }, ['Limit the amount of returned posts', 'limit <number>'])
 
+        this.command('view', function (argv) {
+          self.getPost('t3_' + argv[0]).then(function (response) {
+            let post = response.data.data.children[0].data
+
+            if (post.is_self) {
+              bus.$emit('showPreview', {data: response.data, type: 'thread'})
+            } else {
+              window.open(post.url)
+            }
+          })
+        }, ['View the link for a specific post (you must allow popups)', 'view <post-id>'])
+
         this.command('comments', function (argv) {
-          self.getComments('t3_' + argv[0])
+          self.getPost('t3_' + argv[0])
           .then(function (response) {
             bus.$emit('showPreview', {data: response.data, type: 'thread'})
           })
@@ -188,7 +200,7 @@
           }
         })
       },
-      getComments: function (name) {
+      getPost: function (name) {
         return axios.get('https://www.reddit.com/by_id/' + name + '.json')
       },
       getSubReddits: function () {
@@ -203,6 +215,7 @@
             id: child.id,
             name: child.name,
             score: child.score,
+            sub: child.subreddit,
             media_type: child.post_hint,
             created_utc: child.created_utc,
             title: child.title,
