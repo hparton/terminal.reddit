@@ -136,6 +136,8 @@
             } else {
               window.open(post.url)
             }
+
+            self.promptActive = true
           }).catch(function () {
             self.createResponse('message', 'Could not find a post with that id.')
           })
