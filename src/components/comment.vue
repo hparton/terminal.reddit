@@ -26,7 +26,7 @@ export default {
   name: 'comment',
   props: ['comment', 'depth'],
   computed: {
-    marked: function () {
+    marked () {
       return snuownd.getParser().render(this.comment.body)
     }
   }

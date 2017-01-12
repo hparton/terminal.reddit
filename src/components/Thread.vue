@@ -29,18 +29,17 @@ export default {
     }
   },
   computed: {
-    body: function () {
+    body () {
       return this.content.data.children[0].data
     },
-    marked: function () {
+    marked () {
       return snuownd.getParser().render(this.body.selftext)
     }
   },
   created () {
-    var self = this
     axios.get('https://www.reddit.com/r/' + this.content.data.children[0].data.subreddit + '/comments/' + this.content.data.children[0].data.id + '.json')
-      .then(function (response) {
-        self.comments = response.data[1].data.children
+      .then((response) => {
+        this.comments = response.data[1].data.children
       })
   }
 }

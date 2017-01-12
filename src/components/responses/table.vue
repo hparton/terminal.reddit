@@ -26,13 +26,13 @@
 </template>
 
 <script>
-import {bus} from '../../bus'
+import bus from '../../bus'
 
 export default {
   name: 'responseTable',
   props: ['content'],
   methods: {
-    type: function (str) {
+    type (str) {
       bus.$emit('typeCommand', str)
     }
   }

@@ -67,13 +67,12 @@ export default {
     }
   },
   created () {
-    var self = this
-    setInterval(function () {
-      if (self.percentage < 100) {
-        self.percentage++
-      } else if (!self.loaded) {
-        self.loaded = true
-        self.$emit('loaded')
+    setInterval(() => {
+      if (this.percentage < 100) {
+        this.percentage++
+      } else if (!this.loaded) {
+        this.loaded = true
+        this.$emit('loaded')
       }
     }, 20)
   },

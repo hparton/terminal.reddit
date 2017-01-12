@@ -10,7 +10,7 @@
 import Loading from './components/Loading'
 import Terminal from './components/Terminal'
 import Preview from './components/Preview'
-import {bus} from './bus'
+import bus from './bus'
 
 export default {
   name: 'app',
@@ -26,21 +26,20 @@ export default {
     }
   },
   created () {
-    var self = this
-    bus.$on('showPreview', function (payload) {
-      self.showPreview(payload)
+    bus.$on('showPreview', (payload) => {
+      this.showPreview(payload)
     })
 
-    bus.$on('closePreview', function () {
-      self.preview = false
+    bus.$on('closePreview', () => {
+      this.preview = false
     })
   },
   methods: {
-    showPreview: function (payload) {
+    showPreview (payload) {
       this.preview = payload
       this.previewVisible = true
     },
-    showTerminal: function () {
+    showTerminal () {
       this.terminalVisible = true
     }
   }

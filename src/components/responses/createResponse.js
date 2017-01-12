@@ -5,7 +5,7 @@ import simple from './simple'
 
 export default {
   functional: true,
-  render: function (createElement, context) {
+  render (createElement, context) {
     function appropriateResponse () {
       var type = context.props.type
 

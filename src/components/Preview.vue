@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import {bus} from '../bus'
+import bus from '../bus'
 import Thread from './Thread'
 
 export default {
@@ -27,13 +27,13 @@ export default {
     window.removeEventListener('keydown', this.keyListener, false)
   },
   methods: {
-    keyListener: function (e) {
+    keyListener (e) {
       // CTRL + C or ESC
       if ((e.metaKey || e.ctrlKey) && (String.fromCharCode(e.which).toLowerCase() === 'c') || e.which === 27) {
         this.closePreview()
       }
     },
-    closePreview: function () {
+    closePreview () {
       bus.$emit('closePreview')
     }
   }

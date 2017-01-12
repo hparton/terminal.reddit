@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import {bus} from '../bus'
+import bus from '../bus'
 
 export default {
   name: 'prompt',
@@ -55,7 +55,7 @@ export default {
     }
   },
   computed: {
-    commandDisplay: function () {
+    commandDisplay () {
       let command = this.command
       let index = command.length - this.cursorOffset
       let arr = []
@@ -73,14 +73,14 @@ export default {
   },
   created () {
     if (this.active) {
-      this.$nextTick(function () {
+      this.$nextTick(() => {
         this.toggleBlinky()
 
         window.addEventListener('keydown', this.focusInput)
-        let self = this
-        bus.$on('typeCommand', function (str) {
-          self.command = ''
-          self.typeCommand(str)
+
+        bus.$on('typeCommand', (str) => {
+          this.command = ''
+          this.typeCommand(str)
         })
       })
     }
@@ -89,7 +89,7 @@ export default {
     window.removeEventListener('keydown', this.focusInput)
   },
   methods: {
-    increaseCursorOffset: function () {
+    increaseCursorOffset () {
       if (this.blinkyVisible) {
         this.blinkyVisible = false
       }
@@ -98,15 +98,15 @@ export default {
         this.cursorOffset = this.cursorOffset + 1
       }
     },
-    decreaseCursorOffset: function () {
+    decreaseCursorOffset () {
       if (this.cursorOffset >= 1) {
         this.cursorOffset = this.cursorOffset - 1
       }
     },
-    resetCursorOffset: function () {
+    resetCursorOffset () {
       this.cursorOffset = 0
     },
-    typeCommand: function (str) {
+    typeCommand (str) {
       var self = this
       function iterator (index, cb) {
         if (index < str.length) {
@@ -124,19 +124,19 @@ export default {
         self.typing = !self.typing
       })
     },
-    runCommand: function () {
+    runCommand () {
       this.$emit('emitCommand', this.command)
       this.history.push(this.command)
       this.historyIndex = null
       this.command = ''
       this.resetCursorOffset()
     },
-    focusInput: function () {
+    focusInput () {
       if (this.visible) {
         this.$refs.input.focus()
       }
     },
-    selectInput: function (e) {
+    selectInput (e) {
       if (this.selected === false) {
         if ((e.metaKey || e.ctrlKey) && (String.fromCharCode(e.which).toLowerCase() === 'a')) {
           this.selected = true
@@ -152,17 +152,16 @@ export default {
         }
       }
     },
-    toggleBlinky: function () {
-      let self = this
-      setInterval(function () {
-        if (!self.selected && self.cursorOffset === 0) {
-          self.blinkyVisible = !self.blinkyVisible
+    toggleBlinky () {
+      setInterval(() => {
+        if (!this.selected && this.cursorOffset === 0) {
+          this.blinkyVisible = !this.blinkyVisible
         } else {
-          self.blinkyVisible = false
+          this.blinkyVisible = false
         }
       }, 500)
     },
-    cycleHistory: function (direction) {
+    cycleHistory (direction) {
       // No point looking if nothing exists.
       if (this.history.length) {
         if (this.historyIndex === null) {

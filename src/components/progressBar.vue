@@ -9,10 +9,10 @@ export default {
   name: 'progressBar',
   props: ['percentage', 'length'],
   computed: {
-    chunks: function () {
+    chunks () {
       return Math.floor(this.percentage / 100 * this.length)
     },
-    missingChunks: function () {
+    missingChunks () {
       return Math.floor(this.length - this.chunks)
     }
   }
