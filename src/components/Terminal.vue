@@ -59,7 +59,9 @@
     },
     watch: {
       responses: function () {
-        this.scrollBottom()
+        this.$nextTick(function () {
+          this.scrollBottom()
+        })
       }
     },
     methods: {
@@ -76,7 +78,9 @@
       },
       activatePrompt: function () {
         this.promptActive = true
-        this.scrollBottom()
+        this.$nextTick(function () {
+          this.scrollBottom()
+        })
       },
       deactivatePrompt: function () {
         this.promptActive = false
@@ -284,9 +288,7 @@
         }
       },
       scrollBottom: function () {
-        this.$nextTick(function () {
-          this.$refs.terminal.scrollTop = this.$refs.terminal.scrollHeight
-        })
+        this.$refs.terminal.scrollTop = this.$refs.terminal.scrollHeight
       }
     }
   }
@@ -302,7 +304,12 @@ input {
 
 .terminal-line {
   min-height: 22px;
-  max-width: 70%;
+}
+
+@media screen and (min-width: 1800px) {
+  .terminal-line {
+    max-width: 70%;
+  }
 }
 
 .terminal-line > * {
