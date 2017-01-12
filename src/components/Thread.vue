@@ -40,7 +40,6 @@ export default {
     var self = this
     axios.get('https://www.reddit.com/r/' + this.content.data.children[0].data.subreddit + '/comments/' + this.content.data.children[0].data.id + '.json')
       .then(function (response) {
-        console.log(response.data)
         self.comments = response.data[1].data.children
       })
   }
