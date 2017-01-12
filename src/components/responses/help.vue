@@ -1,7 +1,7 @@
 <template>
   <div>
   <p>You can use the following commands to get around, <br>when you see <span class="faded">&lt;example&gt;</span> you don't need to put the symbols:<br>
-  like so <span class="faded">sort top</span></p>
+  like so <span class="faded">echo hello world</span></p>
   <table>
     <template v-for="command in content">
       <tr>

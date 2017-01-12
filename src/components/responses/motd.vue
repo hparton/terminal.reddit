@@ -1,9 +1,10 @@
 <template v-once>
-  <div>
-    <span class="sep">*==========================MOTD===========================*</span>
-    <p>Welcome to terminal reddit, don't let your memes be dreams.</p>
-    <p>Type `<span class="yellow help" @click.prevent="type('help')">help</span>` to get a list of commands</p>
-    <span class="sep">*=========================================================*</span>
+  <div class="motd centered">
+    <span class="sep">*====================================MOTD=====================================*</span>
+    <p >Welcome to terminal reddit, don't let your memes be dreams.<br><span class="sep">Version 1.0</span> built with Vue.js by Harry Parton</p>
+    <p>You can browse reddit posts and comments by using a terminal-esq interface. </p>
+    <p>Type `<span class="yellow help" @click.prevent="type('help')">help</span>` to get a list of commands or type `<span class="yellow help" @click.prevent="type('list')">list</span>` to get some posts</p>
+    <span class="sep">*=============================================================================*</span>
   </div>
 </template>
 
@@ -23,5 +24,13 @@ export default {
 <style>
   .help {
     cursor: pointer;
+  }
+
+  .motd {
+    line-height: 1.2;
+  }
+
+  .centered {
+    text-align: center;
   }
 </style>
