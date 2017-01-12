@@ -8,6 +8,8 @@ Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
 })
 
+Vue.config.keyCodes.del = 46
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
