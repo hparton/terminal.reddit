@@ -1,6 +1,6 @@
 <template>
   <div class="prompt" v-show="active && visible || !active">
-    <span><span class="user">guest</span><span class="white">@</span><span class="location">reddit.sh</span>:<span class="directory">r/{{ directory }}/</span></span>
+    <span><span class="user">guest</span><span class="white">@</span><span class="location">reddit</span>:<span class="directory">r/{{ directory }}/</span></span>
     <span v-if="!active">
       <span>{{ text }}</span>
     </span>
