@@ -1,7 +1,7 @@
 <template v-once>
   <div class="motd centered">
     <span class="sep">*====================================MOTD=====================================*</span>
-    <p >Welcome to terminal reddit, don't let your memes be dreams.<br><span class="sep">Version 1.0</span> built with Vue.js by Harry Parton</p>
+    <p >Welcome to terminal reddit, don't let your memes be dreams.<br><a href="https://github.com/hparton/terminal.reddit" target="_blank" class="sep">Version 1.0</a> built with Vue.js by <a class="sep" href="https://twitter.com/hparton" target="_blank">Harry Parton</a></p>
     <p>You can browse reddit posts and comments by using a terminal-esq interface. </p>
     <p>Type `<span class="yellow help" @click.prevent="type('help')">help</span>` to get a list of commands or type `<span class="yellow help" @click.prevent="type('list')">list</span>` to get some posts</p>
     <span class="sep">*=============================================================================*</span>
@@ -24,6 +24,10 @@ export default {
 <style>
   .help {
     cursor: pointer;
+  }
+
+  .motd a {
+    text-decoration: none;
   }
 
   .motd {
