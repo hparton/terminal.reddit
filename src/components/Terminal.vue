@@ -4,7 +4,7 @@
         <prompt v-if="item.type === 'command'" :active="false" :text="item.text" :directory="item.directory"></prompt>
         <response v-else :content="item.content" :type="item.type"></response>
     </div>
-    <prompt :active="true" :visible="promptActive" v-on:emitCommand="saveCommand" :directory="currentSub"></prompt>
+    <prompt :active="true" :visible="promptActive" v-on:emitCommand="saveCommand" :directory="state.currentSub"></prompt>
   </div>
 </template>
 
@@ -12,9 +12,8 @@
   import Prompt from './Prompt'
   import response from './responses/createResponse'
 
-  import axios from 'axios'
-
-  import {bus} from '../bus'
+  import store from '../store'
+  import bus from '../bus'
 
   export default {
     name: 'terminal',
@@ -25,47 +24,43 @@
     data () {
       return {
         promptActive: true,
-        sort: 'hot',
-        currentSub: 'all',
-        popularSubs: [],
         responses: [],
         commands: [],
-        listings: [],
-        pagination: {
-          last: false,
-          count: 25
-        }
+        state: store.state
       }
     },
     created () {
-      setTimeout(function () {
+      setTimeout(() => {
         bus.$emit('typeCommand', 'motd')
       }, 200)
-      var self = this
 
       this.registerCommands()
 
-      this.getSubReddits().then(function (response) {
+      store.getSubReddits().then((response) => {
+        let popularSubs = []
+
         for (var i = 0; i < response.data.data.children.length; i++) {
           let child = response.data.data.children[i].data
           // Just doing a check to make sure we dont get that one.
-          if (child.url !== '/r/The_Donald/') self.popularSubs.push(child.url.slice(3, child.url.length - 1))
+          if (child.url !== '/r/The_Donald/') popularSubs.push(child.url.slice(3, child.url.length - 1))
         }
+
+        store.setPopularSubs(popularSubs)
       })
 
-      bus.$on('closePreview', function () {
-        self.activatePrompt()
+      bus.$on('closePreview', () => {
+        this.activatePrompt()
       })
     },
     watch: {
-      responses: function () {
-        this.$nextTick(function () {
+      responses () {
+        this.$nextTick(() => {
           this.scrollBottom()
         })
       }
     },
     methods: {
-      parseCommand: function (string) {
+      parseCommand (string) {
         var commands = string.split(' && ')
         for (var i = 0; i < commands.length; i++) {
           var argv = commands[i].split(/ +/)
@@ -76,53 +71,64 @@
           this.runCommand(name, argv)
         }
       },
-      activatePrompt: function () {
+      activatePrompt () {
         this.promptActive = true
-        this.$nextTick(function () {
+        this.$nextTick(() => {
           this.scrollBottom()
         })
       },
-      deactivatePrompt: function () {
+      deactivatePrompt () {
         this.promptActive = false
       },
-      registerCommands: function () {
-        var self = this
-        this.command('help', function () {
-          self.createResponse('help', self.commands)
+      registerCommands () {
+        this.command('help', () => {
+          this.createResponse('help', this.commands)
         }, ['Show the help function... which you have to know to view this.'])
 
-        this.command('list', function (argv) {
-          self.getPosts().then(function (response) {
-            self.updateListings(response)
-            self.createResponse('list', self.latestListings)
+        this.command('list', (argv) => {
+          store.getPosts().then((response) => {
+            store.setLatestListings(response)
+            this.createResponse('list', this.state.latestListings)
           })
-        }, [`List the first ${self.pagination.count} posts in the current subreddit`])
+        }, [`List the first ${this.state.pagination.count} posts in the current subreddit`])
 
-        this.command('more', function (argv) {
-          if (self.pagination.last) {
-            self.getPosts(self.pagination.last).then(function (response) {
-              self.updateListings(response)
-              self.createResponse('list', self.latestListings)
+        this.command('more', (argv) => {
+          if (this.state.pagination.last) {
+            store.getPosts(this.state.pagination.last).then((response) => {
+              store.setLatestListings(response)
+              this.createResponse('list', this.state.latestListings)
             })
           } else {
-            self.createResponse('message', 'You first need to grab some inital listings using `list`')
+            this.createResponse('message', 'You first need to grab some inital listings using `list`')
           }
         }, ['Get more posts from the same subreddit'])
 
-        this.command('move', function (argv) {
-          self.moveCurrentSub(argv[0])
+        this.command('move', (argv) => {
+          store.setCurrentSub(argv[0]).then((response) => {
+            this.activatePrompt()
+          }).catch((error) => {
+            this.createResponse('message', error)
+          })
         }, ['Change subreddit', 'move <subreddit/random>'])
 
-        this.command('sort', function (argv) {
-          self.changeSortMode(argv[0])
+        this.command('sort', (argv) => {
+          store.setSortMode(argv[0]).then((response) => {
+            this.createResponse('message', response)
+          }).catch((error) => {
+            this.createResponse('message', error)
+          })
         }, ['Change subreddit sorting mode', 'sort <hot/new/rising/top>'])
 
-        this.command('limit', function (argv) {
-          self.setLimit(argv[0])
+        this.command('limit', (argv) => {
+          store.setLimit(argv[0]).then((response) => {
+            this.createResponse('message', response)
+          }).catch((error) => {
+            this.createResponse('message', error)
+          })
         }, ['Limit the amount of returned posts', 'limit <number>'])
 
-        this.command('view', function (argv) {
-          self.getPost('t3_' + argv[0]).then(function (response) {
+        this.command('view', (argv) => {
+          store.getPost('t3_' + argv[0]).then((response) => {
             let post = response.data.data.children[0].data
 
             if (post.is_self) {
@@ -134,50 +140,50 @@
               try {
                 popup.focus()
               } catch (e) {
-                self.createResponse('message', 'You need to allow popups before the view command will work, there should be an icon in the far right of your URL Bar')
+                this.createResponse('message', 'You need to allow popups before the view command will work, there should be an icon in the far right of your URL Bar')
               }
             }
 
-            self.activatePrompt()
-          }).catch(function () {
-            self.createResponse('message', 'Could not find a post with that id.')
+            this.activatePrompt()
+          }).catch(() => {
+            this.createResponse('message', 'Could not find a post with that id.')
           })
         }, ['View the link for a specific post (you must allow popups)', 'view <post-id>'])
 
-        this.command('comments', function (argv) {
-          self.getPost('t3_' + argv[0])
-          .then(function (response) {
+        this.command('comments', (argv) => {
+          store.getPost('t3_' + argv[0])
+          .then((response) => {
             bus.$emit('showPreview', {data: response.data, type: 'thread'})
           }).catch(function () {
-            self.createResponse('message', 'Could not find a post with that id.')
+            this.createResponse('message', 'Could not find a post with that id.')
           })
         }, ['View the comments for a specific post', 'comments <post-id>'])
 
-        this.command('hi', function () {
-          self.createResponse('message', 'Howdy')
+        this.command('hi', () => {
+          this.createResponse('message', 'Howdy')
         }, ['Say hello to the computer'])
 
-        this.command('motd', function () {
-          self.createSpacedResponse('motd')
+        this.command('motd', () => {
+          this.createSpacedResponse('motd')
         }, ['Show the message of the day'])
 
-        this.command('echo', function (argv) {
-          self.createResponse('message', argv.join(' '))
+        this.command('echo', (argv) => {
+          this.createResponse('message', argv.join(' '))
         }, ['Echo out a string onto the command line', 'echo <hello world!>'])
 
-        this.command('clear', function () {
-          self.responses = []
-          self.activatePrompt()
+        this.command('clear', () => {
+          this.responses = []
+          this.activatePrompt()
         }, ['Clear the terminal of any responses'])
       },
-      command: function (name, func, help) {
+      command (name, func, help) {
         this.commands.push({
           name: name,
           command: func,
           help: help
         })
       },
-      runCommand: function (name, argv) {
+      runCommand (name, argv) {
         for (var i = 0; i < this.commands.length; i++) {
           if (this.commands[i].name === name) {
             return this.commands[i].command(argv)
@@ -186,28 +192,27 @@
 
         this.createResponse('message', 'That command is not recognized: ' + name)
       },
-      saveCommand: function (string) {
+      saveCommand (string) {
         this.deactivatePrompt()
 
         let command = {
           type: 'command',
-          directory: this.currentSub,
+          directory: this.state.currentSub,
           text: string
         }
 
         this.responses.push(command)
 
-        let self = this
-        setTimeout(function () {
-          self.parseCommand(string)
+        setTimeout(() => {
+          this.parseCommand(string)
         }, 20)
       },
-      createSpacedResponse: function (type, content) {
+      createSpacedResponse (type, content) {
         this.createResponse('message', '')
         this.createResponse(type, content)
         this.createResponse('message', '')
       },
-      createResponse: function (type, content) {
+      createResponse (type, content) {
         let response = {
           type: type,
           content: content
@@ -216,78 +221,7 @@
         this.responses.push(response)
         this.activatePrompt()
       },
-      getPosts: function (after) {
-        return axios.get('https://www.reddit.com/r/' + this.currentSub + '/' + this.sort + '.json', {
-          params: {
-            after: after,
-            limit: this.pagination.count
-          }
-        })
-      },
-      getPost: function (name) {
-        return axios.get('https://www.reddit.com/by_id/' + name + '.json')
-      },
-      getSubReddits: function () {
-        return axios.get('https://www.reddit.com/subreddits/popular.json')
-      },
-      getSubReddit: function (sub) {
-        return axios.get('https://www.reddit.com/r/' + sub + '.json')
-      },
-      updateListings: function (response) {
-        var output = []
-        for (var i = 0; i < response.data.data.children.length; i++) {
-          var child = response.data.data.children[i].data
-          // ID, Score, Type, Date ?, Name,
-          var line = {
-            id: child.id,
-            name: child.name,
-            score: child.score,
-            sub: child.subreddit,
-            media_type: child.post_hint,
-            created_utc: child.created_utc,
-            title: child.title,
-            permalink: child.permalink,
-            url: child.url.replace(/&amp;/g, '&')
-          }
-          output.push(line)
-        }
-
-        this.pagination.last = response.data.data.children[response.data.data.children.length - 1].data.name
-        this.latestListings = output
-      },
-      changeSortMode: function (mode) {
-        if (mode === 'hot' || mode === 'new' || mode === 'rising' || mode === 'top') {
-          this.sort = mode
-          this.pagination.last = false
-          this.createResponse('message', `Now sorting by ${mode}`)
-        } else {
-          this.createResponse('message', 'Please specify a valid sorting mode (hot/new/rising/top)')
-        }
-      },
-      setLimit: function (count) {
-        if (count > 0 && count <= 100) {
-          this.pagination.count = count
-          this.createResponse('message', `Limit set to ${this.pagination.count}`)
-        } else {
-          this.createResponse('message', 'Limit has to be between 1 - 100')
-        }
-      },
-      moveCurrentSub: function (sub) {
-        if (sub === 'random') {
-          this.currentSub = this.popularSubs[Math.floor(Math.random() * this.popularSubs.length)]
-          this.pagination.last = false
-          this.activatePrompt()
-        } else {
-          this.getSubReddit(sub).then(() => {
-            this.currentSub = sub
-            this.pagination.last = false
-            this.activatePrompt()
-          }).catch(() => {
-            this.createResponse('message', 'Please specify a valid subreddit to move to')
-          })
-        }
-      },
-      scrollBottom: function () {
+      scrollBottom () {
         this.$refs.terminal.scrollTop = this.$refs.terminal.scrollHeight
       }
     }
