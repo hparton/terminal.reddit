@@ -2,6 +2,7 @@
   <table>
     <thead>
       <td>ID</td>
+      <td>SUB</td>
       <td>SCORE</td>
       <td>TYPE</td>
       <td>DATE</td>
@@ -10,15 +11,16 @@
 
     <tr v-for="row in content">
       <td>{{ row.id }}</td>
+      <td>/r/{{row.sub}}</td>
       <td>{{ row.score }}</td>
       <td>
         <span v-if="row.media_type === 'link'">URL</span>
-        <span v-if="row.media_type === 'image'">IMAGE</span>
-        <span v-if="row.media_type === 'rich:video'">VIDEO </span>
-        <span v-if="row.media_type == null">THREAD</span>
+        <span v-else-if="row.media_type === 'image'">IMAGE</span>
+        <span v-else-if="row.media_type === 'rich:video'">VIDEO</span>
+        <span v-else-if="row.media_type === 'self' || row.media_type == null">THREAD</span>
       </td>
       <td>{{ row.created_utc | UNIXcalendarDate }}</td>
-      <td><a v-bind:href="row.url" @click.prevent="type('comments ' + row.id)" target="_blank">{{ row.title }}</a></td>
+      <td><a v-bind:href="row.url" @click.prevent="type('view ' + row.id)" target="_blank">{{ row.title }}</a></td>
     </tr >
   </table>
 </template>
@@ -46,7 +48,8 @@ export default {
   }
 
   td {
-    padding: 1px 10px;
+    padding: 2px 10px;
+    vertical-align: top;
   }
 
   td:first-child {
@@ -59,6 +62,7 @@ export default {
   }
 
   a {
+    line-height: 1.2;
     color: inherit;
   }
 </style>
