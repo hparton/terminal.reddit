@@ -52,7 +52,10 @@ export default {
 
 @font-face {
   font-family: 'SourceCodePro';
-  src: url('./resources/fonts/SourceCodePro-Regular.ttf') format('truetype');
+  src: url('./resources/fonts/sourcecodepro-regular-webfont.woff2') format('woff2'),
+       url('./resources/fonts/sourcecodepro-regular-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
 }
 
 html {
