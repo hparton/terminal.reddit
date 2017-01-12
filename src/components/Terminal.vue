@@ -54,7 +54,7 @@
       })
 
       bus.$on('closePreview', function () {
-        self.promptActive = true
+        self.activatePrompt()
       })
     },
     watch: {
@@ -73,6 +73,13 @@
 
           this.runCommand(name, argv)
         }
+      },
+      activatePrompt: function () {
+        this.promptActive = true
+        this.scrollBottom()
+      },
+      deactivatePrompt: function () {
+        this.promptActive = false
       },
       registerCommands: function () {
         var self = this
@@ -127,7 +134,7 @@
               }
             }
 
-            self.promptActive = true
+            self.activatePrompt()
           }).catch(function () {
             self.createResponse('message', 'Could not find a post with that id.')
           })
@@ -156,7 +163,7 @@
 
         this.command('clear', function () {
           self.responses = []
-          self.promptActive = true
+          self.activatePrompt()
         }, ['Clear the terminal of any responses'])
       },
       command: function (name, func, help) {
@@ -176,7 +183,7 @@
         this.createResponse('message', 'That command is not recognized: ' + name)
       },
       saveCommand: function (string) {
-        this.promptActive = false
+        this.deactivatePrompt()
 
         let command = {
           type: 'command',
@@ -203,7 +210,7 @@
         }
 
         this.responses.push(response)
-        this.promptActive = true
+        this.activatePrompt()
       },
       getPosts: function (after) {
         return axios.get('https://www.reddit.com/r/' + this.currentSub + '/' + this.sort + '.json', {
@@ -262,19 +269,15 @@
         }
       },
       moveCurrentSub: function (sub) {
-        // Need to do this.scrollBottom() after changing sub, the usual responses watcher doesn't seem to catch
-        // adding the prompt so the scroll gets cut off.
         if (sub === 'random') {
           this.currentSub = this.popularSubs[Math.floor(Math.random() * this.popularSubs.length)]
           this.pagination.last = false
-          this.promptActive = true
-          this.scrollBottom()
+          this.activatePrompt()
         } else {
           this.getSubReddit(sub).then(() => {
             this.currentSub = sub
             this.pagination.last = false
-            this.promptActive = true
-            this.scrollBottom()
+            this.activatePrompt()
           }).catch(() => {
             this.createResponse('message', 'Please specify a valid subreddit to move to')
           })
