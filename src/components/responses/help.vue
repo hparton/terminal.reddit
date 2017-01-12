@@ -20,10 +20,7 @@
 <script>
 export default {
   name: 'responseHelp',
-  props: ['content'],
-  created () {
-    console.log(this.content)
-  }
+  props: ['content']
 }
 </script>
 
