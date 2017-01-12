@@ -113,7 +113,7 @@ export default {
           self.command += str.charAt(index)
           setTimeout(function () {
             iterator(++index, cb)
-          }, 50)
+          }, 100)
         }
         if (index === str.length - 1 && cb) {
           cb()
