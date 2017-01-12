@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 var store = {
-  debug: true,
+  debug: false,
   state: {
     sort: 'hot',
     currentSub: 'all',
@@ -13,6 +13,7 @@ var store = {
     }
   },
   getPosts (after) {
+    this.debug && console.log('getPosts triggered with: ', after)
     return axios.get('https://www.reddit.com/r/' + this.state.currentSub + '/' + this.state.sort + '.json', {
       params: {
         after: after,
@@ -21,15 +22,19 @@ var store = {
     })
   },
   getPost (name) {
+    this.debug && console.log('getPost triggered with: ', name)
     return axios.get('https://www.reddit.com/by_id/' + name + '.json')
   },
   getSubReddits () {
+    this.debug && console.log('getSubReddits triggered')
     return axios.get('https://www.reddit.com/subreddits/popular.json')
   },
   getSubReddit (sub) {
+    this.debug && console.log('getSubReddit triggered with: ', sub)
     return axios.get('https://www.reddit.com/r/' + sub + '.json')
   },
   setLatestListings (response) {
+    this.debug && console.log('setLatestListings triggered with: ', response)
     var output = []
     for (var i = 0; i < response.data.data.children.length; i++) {
       var child = response.data.data.children[i].data
@@ -52,9 +57,11 @@ var store = {
     this.state.latestListings = output
   },
   setPopularSubs (subs) {
+    this.debug && console.log('setPopularSubs triggered with: ', subs)
     this.state.popularSubs = subs
   },
   setSortMode (mode) {
+    this.debug && console.log('setSortMode triggered with: ', mode)
     return new Promise((resolve, reject) => {
       if (mode === 'hot' || mode === 'new' || mode === 'rising' || mode === 'top') {
         this.state.sort = mode
@@ -66,6 +73,7 @@ var store = {
     })
   },
   setLimit (count) {
+    this.debug && console.log('setLimit triggered with: ', count)
     return new Promise((resolve, reject) => {
       if (count > 0 && count <= 100) {
         this.state.pagination.count = count
@@ -76,6 +84,7 @@ var store = {
     })
   },
   setCurrentSub (sub) {
+    this.debug && console.log('setCurrentSub triggered with: ', sub)
     return new Promise((resolve, reject) => {
       if (sub === 'random') {
         this.state.currentSub = this.state.popularSubs[Math.floor(Math.random() * this.state.popularSubs.length)]
