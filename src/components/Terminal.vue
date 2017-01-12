@@ -59,10 +59,7 @@
     },
     watch: {
       responses: function () {
-        this.$nextTick(function () {
-          const terminal = this.$refs.terminal
-          terminal.scrollTop = terminal.scrollHeight
-        })
+        this.scrollBottom()
       }
     },
     methods: {
@@ -79,30 +76,16 @@
       },
       registerCommands: function () {
         var self = this
-
-        this.command('hi', function () {
-          self.createResponse('message', 'Howdy')
-        }, ['Say hello to the computer'])
-
-        this.command('motd', function () {
-          self.createSpacedResponse('motd')
-        }, ['Show the message of the day'])
-
         this.command('help', function () {
           self.createResponse('help', self.commands)
         }, ['Show the help function... which you have to know to view this.'])
-
-        this.command('clear', function () {
-          self.responses = []
-          self.promptActive = true
-        }, ['Clear the terminal of any responses'])
 
         this.command('list', function (argv) {
           self.getPosts().then(function (response) {
             self.updateListings(response)
             self.createResponse('list', self.latestListings)
           })
-        }, [`List the current ${self.pagination.count} posts in the current subreddit`])
+        }, [`List the first ${self.pagination.count} posts in the current subreddit`])
 
         this.command('more', function (argv) {
           if (self.pagination.last) {
@@ -158,6 +141,23 @@
             self.createResponse('message', 'Could not find a post with that id.')
           })
         }, ['View the comments for a specific post', 'comments <post-id>'])
+
+        this.command('hi', function () {
+          self.createResponse('message', 'Howdy')
+        }, ['Say hello to the computer'])
+
+        this.command('motd', function () {
+          self.createSpacedResponse('motd')
+        }, ['Show the message of the day'])
+
+        this.command('echo', function (argv) {
+          self.createResponse('message', argv.join(' '))
+        }, ['Echo out a string onto the command line', 'echo <hello world!>'])
+
+        this.command('clear', function () {
+          self.responses = []
+          self.promptActive = true
+        }, ['Clear the terminal of any responses'])
       },
       command: function (name, func, help) {
         this.commands.push({
@@ -173,7 +173,7 @@
           }
         }
 
-        this.createResponse('message', 'That command is not recognized')
+        this.createResponse('message', 'That command is not recognized: ' + name)
       },
       saveCommand: function (string) {
         this.promptActive = false
@@ -262,19 +262,28 @@
         }
       },
       moveCurrentSub: function (sub) {
+        // Need to do this.scrollBottom() after changing sub, the usual responses watcher doesn't seem to catch
+        // adding the prompt so the scroll gets cut off.
         if (sub === 'random') {
           this.currentSub = this.popularSubs[Math.floor(Math.random() * this.popularSubs.length)]
           this.pagination.last = false
           this.promptActive = true
+          this.scrollBottom()
         } else {
           this.getSubReddit(sub).then(() => {
             this.currentSub = sub
             this.pagination.last = false
             this.promptActive = true
+            this.scrollBottom()
           }).catch(() => {
             this.createResponse('message', 'Please specify a valid subreddit to move to')
           })
         }
+      },
+      scrollBottom: function () {
+        this.$nextTick(function () {
+          this.$refs.terminal.scrollTop = this.$refs.terminal.scrollHeight
+        })
       }
     }
   }
@@ -300,9 +309,14 @@ input {
 }
 
 .terminal {
-  height: 100vh;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
   overflow-y: auto;
-  width: 100vw;
   padding: 15px;
   margin-right: auto;
 }

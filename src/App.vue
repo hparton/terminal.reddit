@@ -62,9 +62,15 @@ html {
   line-height: 1.42857143em;
 }
 
+html,
+body {
+  height: 100%;
+}
+
 .app {
   display: flex;
-  height: 100vh;
+  height: 100%;
+  position: relative;
   background: #2b303b;
   justify-content: center;
   align-items: center;
