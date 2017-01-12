@@ -52,13 +52,6 @@
         this.activatePrompt()
       })
     },
-    watch: {
-      responses () {
-        this.$nextTick(() => {
-          this.scrollBottom()
-        })
-      }
-    },
     methods: {
       parseCommand (string) {
         var commands = string.split(' && ')
