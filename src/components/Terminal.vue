@@ -154,7 +154,7 @@
           store.getPost('t3_' + argv[0])
           .then((response) => {
             bus.$emit('showPreview', {data: response.data, type: 'thread'})
-          }).catch(function () {
+          }).catch(() => {
             this.createResponse('message', 'Could not find a post with that id.')
           })
         }, ['View the comments for a specific post', 'comments <post-id>'])
