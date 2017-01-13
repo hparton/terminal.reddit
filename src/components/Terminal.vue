@@ -74,18 +74,18 @@
         this.promptActive = false
       },
       registerCommands () {
-        this.command('help', () => {
+        this.command(['help', 'h'], () => {
           this.createResponse('help', this.commands)
         }, ['Show the help function... which you have to know to view this.'])
 
-        this.command('list', (argv) => {
+        this.command(['list', 'ls'], (argv) => {
           store.getPosts().then((response) => {
             store.setLatestListings(response)
             this.createResponse('list', this.state.latestListings)
           })
         }, [`List the first ${this.state.pagination.count} posts in the current subreddit`])
 
-        this.command('more', (argv) => {
+        this.command(['more'], (argv) => {
           if (this.state.pagination.last) {
             store.getPosts(this.state.pagination.last).then((response) => {
               store.setLatestListings(response)
@@ -96,7 +96,7 @@
           }
         }, ['Get more posts from the same subreddit'])
 
-        this.command('move', (argv) => {
+        this.command(['move', 'cd'], (argv) => {
           store.setCurrentSub(argv[0]).then((response) => {
             this.activatePrompt()
           }).catch((error) => {
@@ -104,7 +104,7 @@
           })
         }, ['Change subreddit', 'move <subreddit/random>'])
 
-        this.command('sort', (argv) => {
+        this.command(['sort'], (argv) => {
           store.setSortMode(argv[0]).then((response) => {
             this.createResponse('message', response)
           }).catch((error) => {
@@ -112,7 +112,7 @@
           })
         }, ['Change subreddit sorting mode', 'sort <hot/new/rising/top>'])
 
-        this.command('limit', (argv) => {
+        this.command(['limit'], (argv) => {
           store.setLimit(argv[0]).then((response) => {
             this.createResponse('message', response)
           }).catch((error) => {
@@ -120,7 +120,7 @@
           })
         }, ['Limit the amount of returned posts', 'limit <number>'])
 
-        this.command('view', (argv) => {
+        this.command(['view'], (argv) => {
           store.getPost('t3_' + argv[0]).then((response) => {
             let post = response.data.data.children[0].data
 
@@ -143,7 +143,7 @@
           })
         }, ['View the link for a specific post (you must allow popups)', 'view <post-id>'])
 
-        this.command('comments', (argv) => {
+        this.command(['comments'], (argv) => {
           store.getPost('t3_' + argv[0])
           .then((response) => {
             bus.$emit('showPreview', {data: response.data, type: 'thread'})
@@ -152,19 +152,19 @@
           })
         }, ['View the comments for a specific post', 'comments <post-id>'])
 
-        this.command('hi', () => {
+        this.command(['hi'], () => {
           this.createResponse('message', 'Howdy')
         }, ['Say hello to the computer'])
 
-        this.command('motd', () => {
+        this.command(['motd'], () => {
           this.createSpacedResponse('motd')
         }, ['Show the message of the day'])
 
-        this.command('echo', (argv) => {
+        this.command(['echo'], (argv) => {
           this.createResponse('message', argv.join(' '))
         }, ['Echo out a string onto the command line', 'echo <hello world!>'])
 
-        this.command('clear', () => {
+        this.command(['clear'], () => {
           this.responses = []
           this.activatePrompt()
         }, ['Clear the terminal of any responses'])
@@ -178,8 +178,10 @@
       },
       runCommand (name, argv) {
         for (var i = 0; i < this.commands.length; i++) {
-          if (this.commands[i].name === name) {
-            return this.commands[i].command(argv)
+          for (var j = 0; j < this.commands[i].name.length; j++) {
+            if (this.commands[i].name[j] === name) {
+              return this.commands[i].command(argv)
+            }
           }
         }
 
