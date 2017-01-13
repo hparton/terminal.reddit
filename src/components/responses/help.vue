@@ -5,7 +5,10 @@
   <table>
     <template v-for="command in content">
       <tr>
-        <td class="command">{{command.name}}</td><td class="command-definition" v-if="command.help">{{command.help[0]}}</td>
+        <td class="command">
+          {{command.name[0]}}
+        </td>
+        <td class="command-definition" v-if="command.help">{{command.help[0]}}</td>
       </tr>
       <tr>
         <td class="command"></td>
