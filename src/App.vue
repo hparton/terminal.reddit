@@ -49,7 +49,7 @@ export default {
 <style>
 
 @font-face {
-  font-family: 'SourceCodePro';
+  font-family: 'Source Code Pro';
   src: url('./resources/fonts/sourcecodepro-regular-webfont.woff2') format('woff2'),
        url('./resources/fonts/sourcecodepro-regular-webfont.woff') format('woff');
   font-weight: normal;
@@ -57,7 +57,7 @@ export default {
 }
 
 html {
-  font-family: 'SourceCodePro';
+  font-family: 'Source Code Pro';
   color: #c0c5ce;
   font-size: 14px;
   line-height: 1.42857143em;
