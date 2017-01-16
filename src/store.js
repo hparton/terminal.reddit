@@ -90,6 +90,14 @@ var store = {
         this.state.currentSub = this.state.popularSubs[Math.floor(Math.random() * this.state.popularSubs.length)]
         this.state.pagination.last = false
         resolve()
+      } else if (sub === '..') {
+        this.getSubReddits().then(() => {
+          this.state.currentSub = 'all'
+          this.state.pagination.last = false
+          resolve()
+        }).catch(() => {
+          reject('Please specify a valid subreddit to move to')
+        })
       } else {
         this.getSubReddit(sub).then(() => {
           this.state.currentSub = sub
