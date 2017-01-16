@@ -89,16 +89,22 @@ var store = {
       if (sub === 'random') {
         this.state.currentSub = this.state.popularSubs[Math.floor(Math.random() * this.state.popularSubs.length)]
         this.state.pagination.last = false
-        resolve()
-      } else {
-        this.getSubReddit(sub).then(() => {
-          this.state.currentSub = sub
-          this.state.pagination.last = false
-          resolve()
-        }).catch(() => {
-          reject('Please specify a valid subreddit to move to')
-        })
+        return resolve()
       }
+
+      if (sub === '..') {
+        this.state.currentSub = 'all'
+        this.state.pagination.last = false
+        return resolve()
+      }
+
+      this.getSubReddit(sub).then(() => {
+        this.state.currentSub = sub
+        this.state.pagination.last = false
+        resolve()
+      }).catch(() => {
+        reject('Please specify a valid subreddit to move to')
+      })
     })
   }
 }
