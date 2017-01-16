@@ -131,9 +131,11 @@ export default {
       this.command = ''
       this.resetCursorOffset()
     },
-    focusInput () {
+    focusInput (e) {
       if (this.visible) {
-        this.$refs.input.focus()
+        if (((e.metaKey || e.ctrlKey) && (String.fromCharCode(e.which).toLowerCase() === 'v')) || (!(e.metaKey || e.ctrlKey))) {
+          this.$refs.input.focus()
+        }
       }
     },
     selectInput (e) {
