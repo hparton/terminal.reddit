@@ -29,7 +29,7 @@ export default {
   methods: {
     keyListener (e) {
       // CTRL + C or ESC
-      if ((e.metaKey || e.ctrlKey) && (String.fromCharCode(e.which).toLowerCase() === 'c') || e.which === 27) {
+      if (e.ctrlKey && (String.fromCharCode(e.which).toLowerCase() === 'c') || e.which === 27) {
         this.closePreview()
       }
     },
