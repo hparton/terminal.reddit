@@ -12,7 +12,9 @@ export default {
       if (type === 'list') return table
       if (type === 'motd') return motd
       if (type === 'help') return help
-      else return simple
+
+      // no component matches the type, default to simple
+      return simple
     }
 
     return createElement(
