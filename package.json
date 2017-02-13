@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "node build/dev-server.js",
     "build": "node build/build.js",
-    "lint": "eslint --ext .js,.vue src test/unit/specs"
+    "deploy": "npm run build && rsync -acrv dist/ root@harryparton.co.uk:../var/www/html/terminal"
   },
   "dependencies": {
     "axios": "^0.15.3",
