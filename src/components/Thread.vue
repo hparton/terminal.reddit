@@ -15,13 +15,13 @@
 <script>
 import axios from 'axios'
 import snuownd from 'snuownd'
-import comment from './comment'
+import Comment from './Comment'
 
 export default {
   name: 'thread',
   props: ['content'],
   components: {
-    comment
+    Comment
   },
   data () {
     return {
