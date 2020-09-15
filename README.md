@@ -2,7 +2,7 @@
 
 > A web based terminal emulator for viewing reddit... hey its better than a todo example!
 
-Demo available [here](http://www.harryparton.co.uk/terminal)
+Demo available [here](terminalreddit-1fflhyvz2.now.sh)
 
 ## Build Setup
 
