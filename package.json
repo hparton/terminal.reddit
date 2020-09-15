@@ -10,7 +10,7 @@
     "deploy": "npm run build && rsync -acrv dist/ root@harryparton.co.uk:../var/www/html/terminal"
   },
   "dependencies": {
-    "axios": "^0.15.3",
+    "axios": "^0.20.0",
     "moment": "^2.17.1",
     "snuownd": "^1.1.0",
     "vue": "^2.1.0"
